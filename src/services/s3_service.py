@@ -21,7 +21,7 @@ class S3Service:
         self,
         file,
         object_name: str,
-    ) -> str:
+    ):
         try:
             self.client.upload_fileobj(
                 Fileobj=file,
@@ -30,13 +30,15 @@ class S3Service:
             )
 
             logger.info(
-                "Failed uploading object '%s' to bucket '%s'",
+                "Successfully uploaded object '%s' to bucket '%s'",
                 object_name,
                 self.bucket,
             )
 
-            return object_name
-
         except ClientError:
-            logger.exception("Upload failed")
+            logger.error(
+                "Failed uploading object '%s' to bucket '%s'",
+                object_name,
+                self.bucket,
+            )
             raise

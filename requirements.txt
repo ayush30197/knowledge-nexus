@@ -3,3 +3,5 @@ uvicorn
 fastapi
 pydantic-settings
 python-multipart
+botocore
+pydantic
