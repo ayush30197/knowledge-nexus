@@ -1,6 +1,9 @@
+from typing import BinaryIO
+
 from botocore.exceptions import ClientError
 import boto3
 
+from models.Document import Metadata
 from src.config.settings import get_settings
 from src.utils.logger import logger
 
@@ -21,7 +24,7 @@ class S3Service:
         self,
         file,
         object_name: str,
-    ) -> str:
+    ):
         try:
             self.client.upload_fileobj(
                 Fileobj=file,
@@ -30,13 +33,36 @@ class S3Service:
             )
 
             logger.info(
-                "Failed uploading object '%s' to bucket '%s'",
+                "Successfully uploaded object '%s' to bucket '%s'",
                 object_name,
                 self.bucket,
             )
 
-            return object_name
-
         except ClientError:
-            logger.exception("Upload failed")
+            logger.error(
+                "Failed uploading object '%s' to bucket '%s'",
+                object_name,
+                self.bucket,
+            )
             raise
+
+    def download(self, key: str) -> bytes:
+        body = None
+        try:
+            response = self.client.get_object(Bucket=self.bucket, Key=key)
+            body = response["Body"]
+            return body.read()
+        except Exception:
+            logger.exception("Failed to download object '%s' from bucket '%s'", key, self.bucket)
+            raise
+        finally:
+            if body:
+                body.close()
+
+    def metadata(self, key: str) -> Metadata:
+        response =self.client.head_object(Bucket=self.bucket,Key=key)
+        return Metadata(
+            name=key,
+            content_type= response["ContentType"],
+            size=response["ContentLength"]
+        )
