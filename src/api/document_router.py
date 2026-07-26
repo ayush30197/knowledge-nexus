@@ -14,10 +14,9 @@ async def upload_document(
     file: UploadFile = File(...)
 ):
     filename = file.filename
-    f = f"test/{filename}"
     s3_service.upload_document(
         file=file.file,
-        object_name=f,
+        object_name=file.filename
     )
 
     return {

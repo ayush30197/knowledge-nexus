@@ -47,17 +47,20 @@ class S3Service:
             raise
 
     def download(self, key: str) -> bytes:
-        response = self.client.get_object(self.bucket, key)
+        body = None
         try:
-            return response["Body"].read()
+            response = self.client.get_object(Bucket=self.bucket, Key=key)
+            body = response["Body"]
+            return body.read()
         except Exception:
             logger.exception("Failed to download object '%s' from bucket '%s'", key, self.bucket)
             raise
         finally:
-            response["Body"].close()
+            if body:
+                body.close()
 
     def metadata(self, key: str) -> Metadata:
-        response =self.client.head_object(self.bucket, key)
+        response =self.client.head_object(Bucket=self.bucket,Key=key)
         return Metadata(
             name=key,
             content_type= response["ContentType"],
