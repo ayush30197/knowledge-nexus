@@ -1,7 +1,5 @@
-from typing import BinaryIO
-
-from botocore.exceptions import ClientError
 import boto3
+from botocore.exceptions import ClientError
 
 from models.Document import Metadata
 from src.config.settings import get_settings
@@ -21,9 +19,9 @@ class S3Service:
         )
 
     def upload_document(
-        self,
-        file,
-        object_name: str,
+            self,
+            file,
+            object_name: str,
     ):
         try:
             self.client.upload_fileobj(
@@ -60,9 +58,9 @@ class S3Service:
                 body.close()
 
     def metadata(self, key: str) -> Metadata:
-        response =self.client.head_object(Bucket=self.bucket,Key=key)
+        response = self.client.head_object(Bucket=self.bucket, Key=key)
         return Metadata(
             name=key,
-            content_type= response["ContentType"],
+            content_type=response["ContentType"],
             size=response["ContentLength"]
         )

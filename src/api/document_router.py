@@ -9,9 +9,10 @@ router = APIRouter(
 
 s3_service = S3Service()
 
+
 @router.post("/")
 async def upload_document(
-    file: UploadFile = File(...)
+        file: UploadFile = File(...)
 ):
     filename = file.filename
     s3_service.upload_document(

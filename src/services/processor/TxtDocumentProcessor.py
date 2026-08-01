@@ -5,6 +5,7 @@ from api.document_router import s3_service
 from models.Document import Document, Metadata, Content
 from services.processor.DocumentProcessor import DocumentProcessor
 
+
 class TxtDocumentProcessor(DocumentProcessor):
 
     def process(self, key: str) -> Document:
@@ -17,7 +18,7 @@ class TxtDocumentProcessor(DocumentProcessor):
         content_blocks = self._build_content(text)
 
         return Document(
-            id = uuid.uuid4().hex,
+            id=uuid.uuid4().hex,
             contents=content_blocks,
             metadata=metadata,
         )

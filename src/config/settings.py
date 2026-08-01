@@ -6,6 +6,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASE_DIR = Path(__file__).resolve().parent
 
+
 class Settings(BaseSettings):
     s3_endpoint: str = Field(..., alias="S3_ENDPOINT")
     s3_access_key: str = Field(..., alias="S3_ACCESS_KEY")
@@ -13,7 +14,7 @@ class Settings(BaseSettings):
     s3_bucket: str = Field(..., alias="S3_BUCKET")
 
     model_config = SettingsConfigDict(
-        env_file=BASE_DIR/".env",
+        env_file=BASE_DIR / ".env",
         env_file_encoding="utf-8",
         extra="ignore"
     )

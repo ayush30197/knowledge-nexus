@@ -6,25 +6,26 @@ from typing import List
 from markdown_it import MarkdownIt
 from markdown_it.token import Token
 
-from models.Document import Document, Metadata, Content
 from api.document_router import s3_service
+from models.Document import Document, Metadata, Content
 from services.processor.DocumentProcessor import DocumentProcessor
 
 OPEN_TOKEN_TO_CONTENT_TYPE = {
-    'heading_open':'heading',
-    'paragraph_open':'paragraph',
-    'bullet_list_open':'list',
-    'ordered_list_open':'list',
-    'list_item_open':'list',
+    'heading_open': 'heading',
+    'paragraph_open': 'paragraph',
+    'bullet_list_open': 'list',
+    'ordered_list_open': 'list',
+    'list_item_open': 'list',
 }
 
 OPEN_CLOSE_MAPPING = {
-    'heading_open':'heading_close',
-    'paragraph_open':'paragraph_close',
-    'bullet_list_open':'bullet_list_close',
-    'ordered_list_open':'ordered_list_close',
+    'heading_open': 'heading_close',
+    'paragraph_open': 'paragraph_close',
+    'bullet_list_open': 'bullet_list_close',
+    'ordered_list_open': 'ordered_list_close',
     'list_item_open': 'list_item_close',
 }
+
 
 class MarkdownDocumentProcessor(DocumentProcessor):
     def __init__(self):
@@ -108,20 +109,20 @@ class MarkdownDocumentProcessor(DocumentProcessor):
         elif token.type in (
                 "heading_open",
                 "paragraph_open",
-            ):
+        ):
             state.content_text = ""
         elif token.type in ("bullet_list_open", "ordered_list_open"):
             state.list_items.clear()
 
     def _handle_inline(self, token: Token, state: MarkdownParserState):
-            if self._inside_list(state):
-                state.current_list_item = token.children[0].content
-                return
-            text = ""
-            for child in token.children:
-                if child.content:
-                    text += child.content
-            state.content_text = text
+        if self._inside_list(state):
+            state.current_list_item = token.children[0].content
+            return
+        text = ""
+        for child in token.children:
+            if child.content:
+                text += child.content
+        state.content_text = text
 
     def _handle_close(self, token: Token, state: MarkdownParserState):
         if (
@@ -133,14 +134,15 @@ class MarkdownDocumentProcessor(DocumentProcessor):
                 state.list_items.append(state.current_list_item)
                 state.block_stack.pop()
                 return
-            elif  token.type == "paragraph_close" and self._inside_list(state):
+            elif token.type == "paragraph_close" and self._inside_list(state):
                 state.block_stack.pop()
                 return
             elif token.type in (
-                "bullet_list_close",
-                "ordered_list_close",
+                    "bullet_list_close",
+                    "ordered_list_close",
             ):
-                self._emit_content(OPEN_TOKEN_TO_CONTENT_TYPE[state.block_stack[-1]], "\n".join(state.list_items), state)
+                self._emit_content(OPEN_TOKEN_TO_CONTENT_TYPE[state.block_stack[-1]], "\n".join(state.list_items),
+                                   state)
             else:
                 self._emit_content(OPEN_TOKEN_TO_CONTENT_TYPE[state.block_stack[-1]], state.content_text, state)
             state.block_stack.pop()
@@ -149,7 +151,7 @@ class MarkdownDocumentProcessor(DocumentProcessor):
         self._emit_content("code", token.content, state)
 
     @staticmethod
-    def _emit_content(content_type: str,  text: str, state: MarkdownParserState):
+    def _emit_content(content_type: str, text: str, state: MarkdownParserState):
         content = Content(
             type=content_type,
             text=text,
@@ -165,6 +167,7 @@ class MarkdownDocumentProcessor(DocumentProcessor):
                 or
                 "ordered_list_open" in state.block_stack
         )
+
 
 def dummy_markdown():
     print("testing markdown-it-py")
@@ -219,13 +222,14 @@ def dummy_markdown():
                 list_items.append(current_list_item)
                 block_stack.pop()
                 continue
-            elif  token.type == "paragraph_close" and ("bullet_list_open" in block_stack or "ordered_list_open" in block_stack):
+            elif token.type == "paragraph_close" and (
+                    "bullet_list_open" in block_stack or "ordered_list_open" in block_stack):
                 block_stack.pop()
                 continue
             elif token.type in (
-                        "bullet_list_close",
-                        "ordered_list_close",
-                ):
+                    "bullet_list_close",
+                    "ordered_list_close",
+            ):
                 content = Content(
                     type=OPEN_TOKEN_TO_CONTENT_TYPE[block_stack[-1]],
                     text="\n".join(list_items),
@@ -244,6 +248,7 @@ def dummy_markdown():
             content_text = ""
 
     print("testing completed")
+
 
 if __name__ == "__main__":
     dummy_markdown()
